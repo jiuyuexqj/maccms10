@@ -167,8 +167,8 @@ return [
     // +----------------------------------------------------------------------
 
     'log'                    => [
-        // 日志记录方式，内置 file socket test 支持扩展
-        'type'  => 'test',
+        // 日志记录方式，内置 file socket test 支持扩展（P2-2：默认 file，确保运行日志写盘；test 基本不写）
+        'type'  => 'file',
         // 日志保存目录
         'path'  => LOG_PATH,
         // 日志记录级别
@@ -214,6 +214,8 @@ return [
         'auto_start'     => true,
         // PHP 7.3+ Cookie SameSite，减轻跨站请求伪造（需 HTTPS 站点可将 secure 设为 true）
         'samesite'       => 'Lax',
+        // 会话 cookie 启用 HttpOnly（P1-2：SessionSameSite behavior 读取本项）
+        'httponly'       => '1',
     ],
 
     // +----------------------------------------------------------------------
@@ -230,8 +232,8 @@ return [
         'domain'    => '',
         //  cookie 启用安全传输
         'secure'    => false,
-        // httponly设置
-        'httponly'  => '',
+        // httponly设置（P1-2：开启，防止 XSS 通过 JS 读取 cookie）
+        'httponly'  => true,
         // 是否使用 setcookie
         'setcookie' => true,
     ],

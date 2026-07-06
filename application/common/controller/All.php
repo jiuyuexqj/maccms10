@@ -98,7 +98,16 @@ polyfill;
         $maccms['actor_extend_area'] = $GLOBALS['config']['app']['actor_extend_area'];
 
         $maccms['http_type'] = $GLOBALS['http_type'];
-        $maccms['http_url'] = $GLOBALS['http_type']. ''.$_SERVER['SERVER_NAME'].($_SERVER["SERVER_PORT"]==80 ? '' : ':'.$_SERVER["SERVER_PORT"]).$_SERVER["REQUEST_URI"];
+        // P2-8：优先用配置 site_url 作 host，避免反射 Host 头；REQUEST_URI 经 htmlspecialchars
+        $cfgHost = !empty($GLOBALS['config']['site']['site_url'])
+            ? preg_replace('#^https?://#', '', $GLOBALS['config']['site']['site_url'])
+            : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '');
+        $maccms['http_url'] = mac_build_http_url(
+            $GLOBALS['http_type'],
+            $cfgHost,
+            isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80,
+            isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : ''
+        );
         $maccms['seo'] = $GLOBALS['config']['seo'];
         $maccms['controller_action'] = $this->_cl .'/'.$this->_ac;
 

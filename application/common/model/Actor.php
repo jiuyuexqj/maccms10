@@ -51,7 +51,13 @@ class Actor extends Base {
         if($totalshow==1) {
             $total = $this->where($where)->count();
         }
-        $list = Db::name('Actor')->field($field)->where($where)->where($where2)->orderRaw($order)->limit($limit_str)->select();
+        // P2-6：orderRaw 参数白名单化，防止 order 注入
+        $safeOrder = mac_sanitize_order($order);
+        $listQuery = Db::name('Actor')->field($field)->where($where)->where($where2);
+        if ($safeOrder !== '') {
+            $listQuery = $listQuery->orderRaw($safeOrder);
+        }
+        $list = $listQuery->limit($limit_str)->select();
         //分类
         $type_list = model('Type')->getCache('type_list');
 

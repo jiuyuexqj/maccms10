@@ -29,7 +29,10 @@ try {
     }
     define('IN_FILE',$in_file);
     if(is_file('./application/data/install/install.lock')) {
-		echo '如需重新安装请删除【To re install, please remove】 >>> /application/data/install/install.lock';
+		// P2-7：已安装则入口应不可达——返回 403 且不回显 install.lock 路径，降低被扫描价值
+		http_response_code(403);
+		header('Content-Type: text/plain; charset=utf-8');
+		echo "Forbidden: application already installed.\n若需重装请联系管理员处理 install.lock；部署后请删除本 install.php。\n";
 		exit;
     }
 	

@@ -847,11 +847,8 @@ class Index extends Base
             array_push($result['seven_day_visit_count'], $data['count']);
         }
 
-        //近七日用户访问总量
-        $result['seven_day_visit_total_count'] = 0;
-        foreach ($result['seven_day_visit_data'] as $k => $value) {
-            $result['seven_day_visit_total_count'] = $result['seven_day_visit_total_count'] + $value['count'];
-        }
+        //近七日用户访问总量（P1-1 修复：原 foreach 引用未定义键 seven_day_visit_data，统计恒为 0）
+        $result['seven_day_visit_total_count'] = mac_array_sum_column($tmp_arr, 'count');
 
         $result['seven_day_visit_total_count'] = number_format($result['seven_day_visit_total_count'], 0, '.', ',');
         //前七天 每日用户注册数

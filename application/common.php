@@ -1638,6 +1638,155 @@ function mac_format_count($str)
     return count($arr);
 }
 
+/**
+ * 对二维数组的某一列安全求和。
+ *
+ * 替代 `foreach($rows as $r) $sum += $r[$col]` —— 后者一旦 $col 键名笔误或某行缺该键，
+ * 会因本项目 error_reporting 收窄（见文件顶部 error_reporting(E_ERROR | E_PARSE)）被静默吞掉，
+ * 得到错误的 0（见 admin/controller/Index.php 历史 bug）。本函数显式跳过非数组元素与缺失键。
+ *
+ * @param array  $rows 二维数组（如 Db::query 的结果集）
+ * @param string $col  列名
+ * @return int 求和（非数值元素按 0 计）
+ */
+function mac_array_sum_column($rows, $col)
+{
+    if (!is_array($rows)) {
+        return 0;
+    }
+    $sum = 0;
+    foreach ($rows as $row) {
+        if (is_array($row) && isset($row[$col])) {
+            $sum += (float)$row[$col];
+        }
+    }
+    return (int)$sum;
+}
+
+/**
+ * 生成前台用户 cookie 登录凭据（user_check）。
+ * P2-1：保留 md5(user_random-user_name-user_id) 以兼容存量 cookie；
+ * 校验侧改用 hash_equals 常量时间比较，杜绝时序通道。
+ *
+ * @return string 32 位 hex
+ */
+function mac_build_login_check($user_random, $user_name, $user_id)
+{
+    return md5($user_random . '-' . $user_name . '-' . $user_id . '-');
+}
+
+/**
+ * 校验前台用户 cookie 凭据（常量时间比较）。
+ */
+function mac_verify_login_check($check, $user_random, $user_name, $user_id)
+{
+    $check = (string)$check;
+    if ($check === '') {
+        return false;
+    }
+    return hash_equals(mac_build_login_check($user_random, $user_name, $user_id), $check);
+}
+
+/**
+ * 生成后台管理员 cookie 凭据（admin_check，绑定客户端 IP，防 cookie 跨机盗用）。
+ */
+function mac_build_admin_check($admin_random, $admin_name, $admin_id, $client_ip)
+{
+    return md5($admin_random . '-' . $admin_name . '-' . $admin_id . '-' . $client_ip);
+}
+
+/**
+ * 校验后台管理员 cookie 凭据（含 IP 绑定，常量时间比较）。
+ */
+function mac_verify_admin_check($check, $admin_random, $admin_name, $admin_id, $client_ip)
+{
+    $check = (string)$check;
+    if ($check === '') {
+        return false;
+    }
+    return hash_equals(mac_build_admin_check($admin_random, $admin_name, $admin_id, $client_ip), $check);
+}
+
+/**
+ * ORDER BY 子句白名单净化（P2-6）。
+ *
+ * 用于 orderRaw()/order() 前对用户可控的排序参数做白名单过滤，
+ * 只允许「字段名[, 字段名...] 可选 asc/desc」形式，杜绝 SQL 注入。
+ * 字段名仅允许字母/数字/下划线/点(表.字段)；任一段非法则整体返回空。
+ *
+ * @param mixed $order 原始排序参数
+ * @return string 安全的 ORDER BY 内容（无 ORDER BY 关键字）；非法或空则返回 ''
+ */
+function mac_sanitize_order($order)
+{
+    $order = trim((string)$order);
+    if ($order === '') {
+        return '';
+    }
+    $parts = explode(',', $order);
+    $clean = [];
+    foreach ($parts as $p) {
+        $p = trim($p);
+        if ($p === '') {
+            continue;
+        }
+        if (!preg_match('/^[a-zA-Z0-9_.]+(\s+(asc|desc))?$/i', $p)) {
+            return '';
+        }
+        $clean[] = $p;
+    }
+    return $clean ? implode(',', $clean) : '';
+}
+
+/**
+ * 构造页面规范/回显 URL（P2-8）。
+ *
+ * 原实现直接拼接 $_SERVER['SERVER_NAME'] 与 $_SERVER['REQUEST_URI']，存在
+ * Host 头反射与 REQUEST_URI XSS 风险。本函数对 host 做 scalar 归一、对
+ * requestUri 做 htmlspecialchars，端口仅在非标准时附加。
+ *
+ * @param string $httpType   协议前缀，如 'https://'
+ * @param string $host       主机名（应优先来自配置 site_url，而非 SERVER_NAME）
+ * @param int    $port       端口
+ * @param string $requestUri 原始 REQUEST_URI
+ * @return string
+ */
+function mac_build_http_url($httpType, $host, $port, $requestUri)
+{
+    $host = mac_scalar_string($host);
+    $port = (int)$port;
+    $requestUri = mac_scalar_string($requestUri);
+    $portPart = ($port == 80 || $port == 443 || $port === 0) ? '' : ':' . $port;
+    return $httpType . $host . $portPart . htmlspecialchars($requestUri, ENT_QUOTES, 'UTF-8');
+}
+
+/**
+ * 判断后台「直接执行 SQL」是否危险（P2-5）。
+ *
+ * 用于 admin/controller/Database::sql() 前置拦截：
+ *  - 黑名单：outfile/dumpfile/load_file/sleep/benchmark/information_schema/char(
+ *  - 禁止对敏感表（admin/user/role/group）的 DROP/TRUNCATE，防误删/破坏鉴权
+ *
+ * @param string $sql    原始 SQL
+ * @param string $prefix 表前缀（如 mac_）
+ * @return bool true=危险应拒绝
+ */
+function mac_is_sql_dangerous($sql, $prefix = '')
+{
+    $sql = strtolower((string)$sql);
+    $forbidden = ['into dumpfile', 'into outfile', 'load_file', 'sleep(', 'benchmark(', 'information_schema', 'char('];
+    foreach ($forbidden as $kw) {
+        if (strpos($sql, $kw) !== false) {
+            return true;
+        }
+    }
+    $pfx = preg_quote(strtolower((string)$prefix), '/');
+    if ($pfx !== '' && preg_match('/\b(drop|truncate)\s+table\s+`?'.$pfx.'(admin|user|role|group)\b/', $sql)) {
+        return true;
+    }
+    return false;
+}
+
 function mac_txt_merge($txt,$str)
 {
     if(empty($str)){

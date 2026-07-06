@@ -37,8 +37,10 @@ try {
         echo '请将后台入口文件admin.php改名,避免被黑客入侵攻击【Please rename the background entry file admin.php to avoid being hacked】';
         exit;
     }
-    if (!mb_check_encoding($_SERVER['PATH_INFO'], 'utf-8')){
-        $_SERVER['PATH_INFO']=mb_convert_encoding($_SERVER['PATH_INFO'], 'UTF-8', 'GBK');
+    // P2-4：PATH_INFO 可能不存在（部分 FastCGI/nginx），先判存在再编码校验，避免未定义键
+    $pi = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';
+    if ($pi !== '' && !mb_check_encoding($pi, 'utf-8')){
+        $_SERVER['PATH_INFO'] = mb_convert_encoding($pi, 'UTF-8', 'GBK');
     }
     // 加载框架引导文件
     require __DIR__ . '/thinkphp/start.php';

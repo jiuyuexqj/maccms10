@@ -198,8 +198,8 @@ class Admin extends Base {
         }
         $info = $info->toArray();
 
-        $login_check = md5($info['admin_random'] .'-'. $info['admin_name'] .'-'.$info['admin_id'] .'-'.mac_get_client_ip() ) ;
-        if($login_check != $admin_check){
+        // P2-1：常量时间比较 + 客户端 IP 绑定
+        if (!mac_verify_admin_check($admin_check, $info['admin_random'], $info['admin_name'], $info['admin_id'], mac_get_client_ip())){
             return ['code'=>1003,'msg'=>lang('model/admin/not_login')];
         }
         return ['code'=>1,'msg'=>lang('model/admin/haved_login'),'info'=>$info];

@@ -784,8 +784,8 @@ class User extends Base
             return ['code' => 1002, 'msg' => lang('model/user/not_login')];
         }
         $info = $info->toArray();
-        $login_check = md5($info['user_random'] . '-' . $info['user_name']. '-' . $info['user_id'] .'-' );
-        if($login_check != $user_check) {
+        // P2-1：改用常量时间比较的纯函数校验，防止时序攻击
+        if (!mac_verify_login_check($user_check, $info['user_random'], $info['user_name'], $info['user_id'])) {
             return ['code' => 1003, 'msg' => lang('model/user/not_login')];
         }
 

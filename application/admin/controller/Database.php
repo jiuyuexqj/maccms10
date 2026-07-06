@@ -258,11 +258,9 @@ class Database extends Base
             $sql = trim($param['sql']);
 
             if(!empty($sql)){
-                $forbidden_keywords = ['into dumpfile', 'into outfile', 'char(', 'load_file'];
-                foreach ($forbidden_keywords as $keyword) {
-                    if (stripos($sql, $keyword) !== false) {
-                        return $this->error(lang('format_err'));
-                    }
+                // P2-5：危险 SQL 拦截（黑名单扩展 + 敏感表 DROP/TRUNCATE 保护）
+                if (mac_is_sql_dangerous($sql, config('database.prefix'))) {
+                    return $this->error(lang('format_err'));
                 }
                 $sql = str_replace('{pre}',config('database.prefix'),$sql);
                 //查询语句返回结果集
