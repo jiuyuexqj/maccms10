@@ -713,6 +713,13 @@ polyfill;
             'vod_director' => $info['vod_director'],
             'vod_class'    => $info['vod_class'],
         ];
+        // F4：集数(nid)/线路(sid)越界保护。旧实现越界时 urls[$nid] 取空 → 播放器 from/url 为空、
+        // 页面仍返回 200 且黑屏，无任何错误提示（nid=99 实测）。越界 → 直接 404 提示。
+        $__playSrc  = $info[$listfun][$param['sid']] ?? null;
+        $__urlCount = is_array($__playSrc) ? (int)($__playSrc['url_count'] ?? 0) : 0;
+        if ($__playSrc === null || (int)$param['nid'] < 1 || (int)$param['nid'] > $__urlCount) {
+            $this->page_error('该集数不存在 / episode not found');
+        }
         if($param['nid']>1){
             $player_info['link_pre'] = $urlfun($info,['sid'=>$param['sid'],'nid'=>$param['nid']-1]);
         }
