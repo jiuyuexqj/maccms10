@@ -2349,6 +2349,13 @@ function mac_url($model,$param=[],$info=[])
         }
     }
 
+    // DB 取出的时间字段为 string，PHP8 date() 要求 int，统一 intval 防 TypeError（ajax/data 真实复现）
+    if (is_array($info)) {
+        foreach (['vod_time','art_time','manga_time','actor_time','role_time','website_time','topic_time'] as $_tk) {
+            if (isset($info[$_tk])) { $info[$_tk] = (int)$info[$_tk]; }
+        }
+    }
+
     if(!isset($param['page'])) $param['page']=1;
 
     if($param['page'] == 1){

@@ -60,8 +60,8 @@ class Ajax extends Base
         if($res['code']==1) {
             foreach ($res['list'] as $k => &$v) {
                 unset($v[$pre.'_time_hits'],$v[$pre.'_time_make']);
-                $v[$pre.'_time'] = date('Y-m-d H:i:s',$v[$pre.'_time']);
-                $v[$pre.'_time_add'] = date('Y-m-d H:i:s',$v[$pre.'_time_add']);
+                $v[$pre.'_time'] = date('Y-m-d H:i:s', intval($v[$pre.'_time']));
+                $v[$pre.'_time_add'] = date('Y-m-d H:i:s', intval($v[$pre.'_time_add']));
                 if($mid=='1'){
                     unset($v['vod_play_from'],$v['vod_play_server'],$v['vod_play_note'],$v['vod_play_url']);
                     unset($v['vod_down_from'],$v['vod_down_server'],$v['vod_down_note'],$v['vod_down_url']);
