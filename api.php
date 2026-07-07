@@ -40,7 +40,14 @@ try {
     }
     // 加载框架引导文件
     require __DIR__ . '/thinkphp/start.php';
-} catch (Exception $e) {
+} catch (\Exception $e) {
+    // API 入口异常必须返回明确 JSON 错误，而非静默空 200（否则前端/客户端无法定位）
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    $debug = function_exists('config') && config('app_debug');
+    echo json_encode(['code' => 500, 'msg' => $debug ? ('service error: ' . $e->getMessage()) : 'service error'], JSON_UNESCAPED_UNICODE);
     error_log('Throws error: '.$e->getMessage().' in '.$e->getFile().' on line '.$e->getLine());
 }
 
