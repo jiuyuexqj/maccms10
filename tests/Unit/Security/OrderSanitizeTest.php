@@ -15,7 +15,8 @@ class OrderSanitizeTest extends TestCase
     {
         $this->assertSame('website_id desc', mac_sanitize_order('website_id desc'));
         $this->assertSame('vod_id', mac_sanitize_order('vod_id'));
-        $this->assertSame('vod_id asc', mac_sanitize_order('VOD_ID ASC'));
+        // 函数保留原始大小写：SQL 字段名/方向大小写不敏感，无需归一；只做安全过滤
+        $this->assertSame('VOD_ID ASC', mac_sanitize_order('VOD_ID ASC'));
     }
 
     public function test_multi_field_with_directions_pass()
