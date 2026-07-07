@@ -128,6 +128,10 @@ class Comment extends Base
      */
     public function submit(Request $request)
     {
+        // 安全：内容写入必须 POST，禁止 GET——否则 <img src="api.php?s=comment/submit&..."> 即可跨站 CSRF 植入评论
+        if (!$request->isPost()) {
+            return json(['code' => 1001, 'msg' => '请使用 POST 提交']);
+        }
         $param = $request->param();
         $cmid = isset($param['comment_mid']) ? (string) $param['comment_mid'] : '';
         if (!in_array($cmid, ['1', '2', '3', '8', '9', '11', '12'], true)) {

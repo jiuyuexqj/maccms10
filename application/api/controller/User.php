@@ -197,18 +197,7 @@ class User extends Base
             $where['user_reg_time'] = ['>=', (int)$param['time_start']];
         }
 
-        if (isset($param['phone']) && strlen($param['phone']) > 0) {
-            $where['user_phone'] = ['like', '%' . $this->format_sql_string($param['phone']) . '%'];
-        }
-
-        if (isset($param['qq']) && strlen($param['qq']) > 0) {
-            $where['user_qq'] = ['like', '%' . $this->format_sql_string($param['qq']) . '%'];
-        }
-
-        if (isset($param['email']) && strlen($param['email']) > 0) {
-            $where['user_email'] = ['like', '%' . $this->format_sql_string($param['email']) . '%'];
-        }
-
+        // 安全：公开列表禁止按 phone/qq/email 检索（PII 枚举/撞库向量），仅保留昵称/用户名检索
         if (isset($param['nickname']) && strlen($param['nickname']) > 0) {
             $where['user_nick_name'] = ['like', '%' . $this->format_sql_string($param['nickname']) . '%'];
         }
@@ -223,9 +212,13 @@ class User extends Base
         if ($total > 0) {
             // 排序
             $order = "user_reg_time DESC";
-            $field = 'user_id,user_name,user_nick_name,user_phone,user_reg_time';
-            if (strlen($param['orderby']) > 0) {
-                $order = 'user_' . $param['orderby'] . " DESC";
+            $field = 'user_id,user_name,user_nick_name,user_reg_time';
+            // P2/B7：orderby 必须白名单，否则 'user_'.<输入> 拼进 ORDER BY 会触发 500
+            // （TP5 Builder 遇到括号等直接抛异常）。仅允许安全列名。
+            $orderMap = ['id' => 'user_id', 'reg_time' => 'user_reg_time', 'login_time' => 'user_login_time', 'points' => 'user_points'];
+            $ob = $param['orderby'] ?? '';
+            if (is_string($ob) && isset($orderMap[$ob])) {
+                $order = $orderMap[$ob] . " DESC";
             }
             $list = model('User')->getListByCond($offset, $limit, $where, $order, $field, []);
         }
@@ -408,7 +401,7 @@ class User extends Base
         if ($check['code'] > 1) return json(['code' => 1401, 'msg' => lang('api/please_login_first')]);
         $uid = intval($check['info']['user_id']);
         $info = Db::name('User')
-            ->field('user_id,user_name,user_nick_name,user_email,user_phone,user_qq,group_id,user_points,user_exp,user_integral,user_invite_code,user_invite_count,user_reg_time,user_status')
+            ->field('user_id,user_name,user_nick_name,user_email,user_phone,user_qq,group_id,user_points,user_invite_code,user_invite_count,user_reg_time,user_status')
             ->where('user_id', $uid)->find();
         if (!$info) return json(['code' => 1002, 'msg' => lang('api/user_not_found')]);
         $info['user_portrait'] = mac_get_user_portrait($uid);

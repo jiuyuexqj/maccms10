@@ -106,6 +106,10 @@ class Gbook extends Base
      */
     public function submit(Request $request)
     {
+        // 安全：内容写入必须 POST，禁止 GET（避免跨站 CSRF 植入留言）
+        if (!$request->isPost()) {
+            return json(['code' => 1001, 'msg' => '请使用 POST 提交']);
+        }
         $content = trim($request->param('gbook_content', ''));
         if (empty($content)) return json(['code' => 1004, 'msg' => lang('index/require_content')]);
         $cookie = 'gbook_timespan';

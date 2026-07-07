@@ -43,7 +43,9 @@ class User extends Base
      */
     public function publicApiDetailFields()
     {
-        return 'user_id,user_name,user_nick_name,user_phone,user_qq,user_email,group_id,user_points,user_exp,user_integral,user_invite_code,user_invite_count,user_reg_time,user_status';
+        // 仅公开安全字段：移除 mac_user 不存在的 user_exp/user_integral（原会导致 500），
+        // 并移除 user_phone/user_qq/user_email 等联系信息——公开接口不应向他者泄露 PII。
+        return 'user_id,user_name,user_nick_name,group_id,user_points,user_invite_code,user_invite_count,user_reg_time,user_status';
     }
 
     /**
