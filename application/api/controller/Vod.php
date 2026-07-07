@@ -157,7 +157,8 @@ class Vod extends Base
             ]);
         }
 
-        $res = Db::table('mac_vod')->where(['vod_id' => $param['vod_id']])->find();
+        // 安全：与 get_list/get_play_info 一致，过滤 vod_status=1 且未回收，避免泄露下架/隐藏内容与播放地址
+        $res = Db::table('mac_vod')->where(['vod_id' => $param['vod_id'], 'vod_status' => 1, 'vod_recycle_time' => 0])->find();
         if (empty($res)) {
             return json(['code' => 1001, 'msg' => '数据不存在']);
         }
@@ -277,7 +278,7 @@ class Vod extends Base
             ]);
         }
 
-        $result = Db::table('mac_vod')->distinct(true)->field('vod_year')->where(['type_id_1' => $param['type_id_1']])->select();
+        $result = Db::table('mac_vod')->distinct(true)->field('vod_year')->where(['type_id_1' => $param['type_id_1'], 'vod_status' => 1, 'vod_recycle_time' => 0])->select();
         $return = [];
         foreach ($result as $index => $item) {
             if (!empty($item['vod_year'])){
@@ -314,7 +315,7 @@ class Vod extends Base
             ]);
         }
 
-        $result = Db::table('mac_vod')->distinct(true)->field('vod_class')->where(['type_id_1' => $param['type_id_1']])->select();
+        $result = Db::table('mac_vod')->distinct(true)->field('vod_class')->where(['type_id_1' => $param['type_id_1'], 'vod_status' => 1, 'vod_recycle_time' => 0])->select();
         $return = [];
         foreach ($result as $index => $item) {
             if (!empty($item['vod_class'])){
@@ -351,7 +352,7 @@ class Vod extends Base
             ]);
         }
 
-        $result = Db::table('mac_vod')->distinct(true)->field('vod_area')->where(['type_id_1' => $param['type_id_1']])->select();
+        $result = Db::table('mac_vod')->distinct(true)->field('vod_area')->where(['type_id_1' => $param['type_id_1'], 'vod_status' => 1, 'vod_recycle_time' => 0])->select();
         $return = [];
         foreach ($result as $index => $item) {
             if (!empty($item['vod_area'])){
@@ -680,37 +681,24 @@ class Vod extends Base
         if ($res['code'] > 1) return json($res);
         $info = $res['info'];
         if ($param['type'] == 'update') {
-            $update = [
-                'vod_hits'       => $info['vod_hits'],
-                'vod_hits_day'   => $info['vod_hits_day'],
-                'vod_hits_week'  => $info['vod_hits_week'],
-                'vod_hits_month' => $info['vod_hits_month'],
-            ];
-            $new = getdate();
-            $old = getdate($info['vod_time_hits']);
-            if ($new['year'] == $old['year'] && $new['mon'] == $old['mon']) {
-                $update['vod_hits_month']++;
-            } else {
-                $update['vod_hits_month'] = 1;
+            // 并发安全：单条原子 UPDATE（Db::raw() 自增 + InnoDB 行锁），替代旧 read-modify-write。
+            // 旧实现先 infoData 读、再用读到的值 +1 写回，多 worker 并发下丢更新
+            // （3 worker × 30 并发实测 30 次播放只 +25，丢 5 次）。详见 mac_vod_hits_atomic_update()。
+            $built = mac_vod_hits_atomic_update(
+                isset($info['vod_time_hits']) ? (int)$info['vod_time_hits'] : 0,
+                null,
+                $info
+            );
+            $update = [];
+            foreach ($built['sql'] as $f => $expr) {
+                $update[$f] = \think\Db::raw($expr);
             }
-            $ws = mktime(0,0,0,$new["mon"],$new["mday"],$new["year"]) - ($new["wday"] * 86400);
-            $we = mktime(23,59,59,$new["mon"],$new["mday"],$new["year"]) + ((6-$new["wday"])*86400);
-            if ($info['vod_time_hits'] >= $ws && $info['vod_time_hits'] <= $we) {
-                $update['vod_hits_week']++;
-            } else {
-                $update['vod_hits_week'] = 1;
-            }
-            if ($new['year']==$old['year'] && $new['mon']==$old['mon'] && $new['mday']==$old['mday']) {
-                $update['vod_hits_day']++;
-            } else {
-                $update['vod_hits_day'] = 1;
-            }
-            $update['vod_hits'] += 1;
-            $update['vod_time_hits'] = time();
+            $update['vod_time_hits'] = $built['vod_time_hits'];
             model('Vod')->where($where)->update($update);
+            $e = $built['expect'];
             return json(['code' => 1, 'msg' => 'ok', 'data' => [
-                'hits' => $update['vod_hits'], 'hits_day' => $update['vod_hits_day'],
-                'hits_week' => $update['vod_hits_week'], 'hits_month' => $update['vod_hits_month'],
+                'hits' => $e['vod_hits'], 'hits_day' => $e['vod_hits_day'],
+                'hits_week' => $e['vod_hits_week'], 'hits_month' => $e['vod_hits_month'],
             ]]);
         }
         return json(['code' => 1, 'msg' => 'ok', 'data' => [

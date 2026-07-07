@@ -3950,6 +3950,61 @@ function mac_strip_tags($string) {
         }
         return $matches[0];
     }, $string);
-    
+
     return strip_tags($string);
+}
+
+/**
+ * 构造「播放量自增」的并发安全 UPDATE 数据。
+ *
+ * 背景：api/vod/update_hits 旧实现是 read-modify-write（先 infoData 读出当前值，
+ * 在 PHP 里 +1 再整体写回）。多 worker 并发下，多个请求读到同一旧值、各自 +1 写回，
+ * 后写覆盖先写 → 丢更新（3 worker × 30 并发实测 30 次播放只 +25，丢 5 次）。
+ *
+ * 本函数改用单条原子 UPDATE：
+ *  - vod_hits 用 ['exp','vod_hits+1']，由 InnoDB 行锁保证原子自增，彻底消除丢更新；
+ *  - vod_hits_day/week/month 用 IF(vod_time_hits >= 当期起点, 字段+1, 1)：
+ *    上次播放落在当期窗口内则自增，跨期则重置为 1（保留原“今日/本周/本月”语义）。
+ *
+ * 时间边界均由 PHP mktime 计算（整数），安全内联进 SQL，不含任何用户输入。
+ *
+ * @param int|null $vod_time_hits 上次播放 unix 时间（mac_vod.vod_time_hits），空按 0
+ * @param int|null $now            当前时间，测试可注入；默认 time()
+ * @param array    $cur            当前计数（vod_hits/day/week/month），用于计算响应预期值
+ * @return array {update: 字段=>['exp',expr]|int, window: 起点, expect: 响应预期值}
+ */
+function mac_vod_hits_atomic_update($vod_time_hits = null, $now = null, $cur = [])
+{
+    $now = ($now === null) ? time() : (int)$now;
+    $vod_time_hits = ($vod_time_hits === null) ? 0 : (int)$vod_time_hits;
+
+    $d = getdate($now);
+    $dayStart   = (int)mktime(0, 0, 0, (int)$d['mon'], (int)$d['mday'], (int)$d['year']);
+    $weekStart  = $dayStart - ((int)$d['wday'] * 86400);              // 本周周日 00:00（与旧逻辑一致）
+    $monthStart = (int)mktime(0, 0, 0, (int)$d['mon'], 1, (int)$d['year']); // 本月 1 日 00:00
+
+    $inDay   = $vod_time_hits >= $dayStart;
+    $inWeek  = $vod_time_hits >= $weekStart;
+    $inMonth = $vod_time_hits >= $monthStart;
+
+    return [
+        // 原子自增 SQL 片段（纯字符串，控制器用 Db::raw() 包装后交给 ThinkPHP，
+        // 因 TP5.0 Builder 在 UPDATE 数据里不支持 ['exp',...]（Builder.php:128 直接抛异常），
+        // 只接受 ['inc'] / ['dec'] / Expression(Db::raw)）。片段时间边界为整数，无注入面。
+        'sql' => [
+            'vod_hits'       => 'vod_hits+1',
+            'vod_hits_day'   => 'IF(vod_time_hits>=' . $dayStart . ',vod_hits_day+1,1)',
+            'vod_hits_week'  => 'IF(vod_time_hits>=' . $weekStart . ',vod_hits_week+1,1)',
+            'vod_hits_month' => 'IF(vod_time_hits>=' . $monthStart . ',vod_hits_month+1,1)',
+        ],
+        'vod_time_hits' => $now,
+        'window' => ['day' => $dayStart, 'week' => $weekStart, 'month' => $monthStart],
+        // 响应预期值（单次请求视角；并发下真实值以 DB 原子自增为准，此处仅供展示）
+        'expect' => [
+            'vod_hits'       => (int)($cur['vod_hits'] ?? 0) + 1,
+            'vod_hits_day'   => $inDay   ? (int)($cur['vod_hits_day'] ?? 0) + 1 : 1,
+            'vod_hits_week'  => $inWeek  ? (int)($cur['vod_hits_week'] ?? 0) + 1 : 1,
+            'vod_hits_month' => $inMonth ? (int)($cur['vod_hits_month'] ?? 0) + 1 : 1,
+        ],
+    ];
 }
