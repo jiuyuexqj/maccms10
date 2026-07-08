@@ -36,6 +36,11 @@ else
     no "Lottie logo 仍以 .json 为 img src（应改占位+data 属性）"
 fi
 
+# 4) 分类页 <noscript> SSR 首屏卡片（无 JS 爬虫/读屏器可见详情链接，JS 客户端仍走 AJAX）
+show=$(curl -sS --max-time 15 "$BASE/index.php?s=vod/show/id/1.html" 2>/dev/null)
+n=$(echo "$show" | grep -oE '<a class="vodlist_thumb" href="[^"]*vod/detail[^"]*"' | wc -l)
+if [ "$n" -ge 1 ]; then ok "分类页 noscript SSR 卡片 ($n 条)"; else no "分类页无 noscript SSR 卡片"; fi
+
 echo ""
 echo "=== 通过 $PASS / 失败 $FAIL ==="
 [ "$FAIL" -eq 0 ] && { echo "✅ 前端资源不变量保持"; exit 0; } || { echo "❌ 存在前端资源回归"; exit 1; }

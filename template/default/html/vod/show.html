@@ -27,6 +27,24 @@
                         <div class="mac-catalog-show__empty mac-hide">{include file="public/notempty"}</div>
                         <ul class="vodlist mac-catalog-show__grid vod-show-grid {$type_poster_class} mac-hide"></ul>
                         <div class="mac-catalog-show__pager"></div>
+                        <!-- F5：SEO/无障碍兜底。本页列表默认 data-list-mode=ajax（JS 渲染），
+                             无 JS 的爬虫/读屏器/失败态会看到空网格。这里 <noscript> 服务端渲染首屏卡片，
+                             提供详情链接/标题/海报，供无 JS 客户端索引与访问；JS 客户端忽略 noscript，仍走 AJAX 体验。 -->
+                        <noscript>
+                        <div class="mac-catalog-show__ssr">
+                            <ul class="vodlist vod-show-grid-ssr {$type_poster_class}">
+                            {maccms:vod num="24" type="current" order="desc" by="time"}
+                                <li class="vodlist_item">
+                                    <a class="vodlist_thumb" href="{:mac_url_vod_detail($vo)}" title="{$vo.vod_name}">
+                                        <img src="{:mac_url_img($vo.vod_pic)}" alt="{$vo.vod_name}" loading="lazy" />
+                                        <span class="vodlist_title">{$vo.vod_name}</span>
+                                        {if condition="!empty($vo['vod_remarks'])"}<span class="vodlist_remarks">{$vo.vod_remarks}</span>{/if}
+                                    </a>
+                                </li>
+                            {/maccms:vod}
+                            </ul>
+                        </div>
+                        </noscript>
                     </div>
                 </div>
             </div>
