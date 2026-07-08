@@ -9,6 +9,7 @@
 #   B5 user/get_list     不下发 user_phone（PII）
 #   B6 vod/get_class     不含隐藏视频的分类元数据
 #   B7 user/get_list     orderby 注入不再 500（白名单）
+#   B11 未知 API 方法     返回干净 404（不再 500 service error）
 #
 # 用法：BASE=http://127.0.0.1:8080 bash tests/regression/api-security.sh
 # 退出码：0 全部通过；1 存在回归。
@@ -55,6 +56,10 @@ echo "$b" | grep -q '"喜剧"' && no "B6 get_class 含隐藏视频单独分类: 
 # --- B7: orderby 注入不再 500 ---
 c=$(code "/api.php?s=User/get_list&orderby=reg_time,(select%20sleep(1))")
 [ "$c" = "200" ] && ok "B7 orderby 注入返回 200（白名单兜底）" || no "B7 orderby 注入返回 $c（应 200）"
+
+# --- B11: 未知 API 方法返回 404（不再 500）---
+b=$(get "/api.php?s=Provide/type")
+echo "$b" | grep -q '"code":404' && ok "B11 未知方法返回 404（非 500）" || no "B11 未知方法未返回 404: $b"
 
 echo ""
 echo "=== 通过 $PASS / 失败 $FAIL ==="

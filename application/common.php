@@ -4008,3 +4008,28 @@ function mac_vod_hits_atomic_update($vod_time_hits = null, $now = null, $cur = [
         ],
     ];
 }
+
+/**
+ * API 入口异常 → 响应状态码与提示语。
+ *
+ * 背景：api.php 旧 catch 对所有异常一律返回 500 service error，但 ThinkPHP 对
+ * “方法/控制器/路由不存在”“请求方法不允许”抛的是带状态码的 HttpException（404/405），
+ * 应如实透传——否则客户端把“接口不存在”误判为“服务异常”，无法定位。
+ *
+ * @param \Throwable|\Exception $e
+ * @param bool $debug 调试模式：500 时附带异常信息便于排查（生产关闭）
+ * @return array{status:int,msg:string}
+ */
+function mac_api_exception_response($e, $debug = false)
+{
+    $isHttp = $e instanceof \think\exception\HttpException;
+    $status = $isHttp ? (int)$e->getStatusCode() : 500;
+    if ($isHttp && $status === 404) {
+        $msg = 'not found';
+    } elseif ($isHttp && $status === 405) {
+        $msg = 'method not allowed';
+    } else {
+        $msg = $debug ? ('service error: ' . $e->getMessage()) : 'service error';
+    }
+    return ['status' => $status, 'msg' => $msg];
+}

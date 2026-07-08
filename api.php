@@ -41,13 +41,21 @@ try {
     // 加载框架引导文件
     require __DIR__ . '/thinkphp/start.php';
 } catch (\Exception $e) {
-    // API 入口异常必须返回明确 JSON 错误，而非静默空 200（否则前端/客户端无法定位）
+    // API 入口异常必须返回明确 JSON 错误，而非静默空 200（否则前端/客户端无法定位）。
+    // 区分语义：ThinkPHP 对“方法/控制器/路由不存在”“请求方法不允许”抛 HttpException（带 404/405 状态码），
+    // 应如实返回对应状态；旧实现一律 500 service error，把“不存在”误报成“服务异常”，误导客户端。
+    // 决策逻辑抽到 mac_api_exception_response() 便于单测；框架未就绪时回退兜底。
+    $debug = function_exists('config') && config('app_debug');
+    if (function_exists('mac_api_exception_response')) {
+        $r = mac_api_exception_response($e, $debug);
+    } else {
+        $r = ['status' => 500, 'msg' => $debug ? ('service error: ' . $e->getMessage()) : 'service error'];
+    }
     if (!headers_sent()) {
-        http_response_code(500);
+        http_response_code($r['status']);
         header('Content-Type: application/json; charset=utf-8');
     }
-    $debug = function_exists('config') && config('app_debug');
-    echo json_encode(['code' => 500, 'msg' => $debug ? ('service error: ' . $e->getMessage()) : 'service error'], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['code' => $r['status'], 'msg' => $r['msg']], JSON_UNESCAPED_UNICODE);
     error_log('Throws error: '.$e->getMessage().' in '.$e->getFile().' on line '.$e->getLine());
 }
 
