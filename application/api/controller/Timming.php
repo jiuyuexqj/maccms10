@@ -13,6 +13,12 @@ class Timming extends Base
 
     public function index()
     {
+        // 鉴权：仅本机(cron)或携带正确 api_key，拦截公网未授权强制执行管理任务（采集/生成/分析/写 config）
+        if (!mac_require_cron_auth()) {
+            header('HTTP/1.1 403 Forbidden');
+            echo 'Forbidden: admin/cron only.（本机或配置 app.api_key 后带 key 访问）';
+            return;
+        }
         $param = input('get.','','trim,urldecode');
         $name = $param['name'];
         if(empty($name)){

@@ -104,7 +104,8 @@ class Topic extends Base
             ]);
         }
 
-        $result = Db::table('mac_topic')->where(['topic_id' => $param['topic_id']])->find();
+        // 过滤 topic_status=1，避免隐藏专题详情被公开拉取（与 Vod/Art get_detail 一致）
+        $result = Db::table('mac_topic')->where(['topic_id' => $param['topic_id'], 'topic_status' => 1])->find();
 
         if ($result)
         {

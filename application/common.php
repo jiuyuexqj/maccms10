@@ -4075,3 +4075,23 @@ function mac_score_atomic_update($score, $numField, $allField, $scoreField)
         $scoreField => \think\Db::raw('ROUND((' . $allField . '+' . $s . ')/(' . $numField . '+1),1)'),
     ];
 }
+
+/**
+ * 管理/定时(cron)类接口鉴权：仅允许本机（cron 常驻本地，REMOTE_ADDR 不可伪造）
+ * 或携带正确 api_key 的请求，拦截公网未授权触发管理任务（如 Timming/Analytics）。
+ *
+ * 背景：api/timming/index、api/analytics/aggregate 旧实现无鉴权，任何人 GET 即可强制执行
+ * 管理员定时任务（采集/生成/分析聚合/写 config），属严重未授权操作面。
+ *
+ * @return bool true=放行（本机 或 api_key 匹配），false=拒绝
+ */
+function mac_require_cron_auth()
+{
+    $remote = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+    if (in_array($remote, ['127.0.0.1', '::1'], true)) {
+        return true;
+    }
+    $key    = isset($GLOBALS['config']['app']['api_key']) ? trim((string)$GLOBALS['config']['app']['api_key']) : '';
+    $passed = isset($_REQUEST['key']) ? (string)$_REQUEST['key'] : '';
+    return $key !== '' && hash_equals($key, $passed);
+}

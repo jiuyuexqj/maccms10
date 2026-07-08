@@ -96,8 +96,12 @@ class Website extends Base
         if ($total > 0) {
             // 排序
             $order = "website_time DESC";
-            if (strlen($param['orderby']) > 0) {
-                $order = 'website_' . $param['orderby'] . " DESC";
+            // P1/SQL注入：orderby 必须白名单（CLAUDE.md §5）。旧实现 'website_'.$orderby 直拼 ORDER BY，
+            // 且 validate get_list 场景漏配 orderby，含括号即触发 Builder 异常或注入。与 User/Vod 一致白名单。
+            $obMap = ['id' => 'website_id', 'time' => 'website_time', 'level' => 'website_level', 'hits' => 'website_hits', 'score' => 'website_score', 'up' => 'website_up', 'down' => 'website_down'];
+            $ob = isset($param['orderby']) ? (string)$param['orderby'] : '';
+            if (isset($obMap[$ob])) {
+                $order = $obMap[$ob] . " DESC";
             }
             $field = '*';
             $list = model('Website')->getListByCond($offset, $limit, $where, $order, $field, []);

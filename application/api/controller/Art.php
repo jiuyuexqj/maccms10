@@ -59,8 +59,11 @@ class Art extends Base
             $where['art_letter'] = $param['letter'];
         }
 
+        // 公开列表默认仅上架(art_status=1)，与 Vod::get_list 一致，避免下架文章出现在列表
         if (isset($param['status'])) {
             $where['art_status'] = (int)$param['status'];
+        } else {
+            $where['art_status'] = 1;
         }
 
         if (isset($param['name']) && strlen($param['name']) > 0) {
@@ -157,7 +160,8 @@ class Art extends Base
         }
 
         $aid = (int)$param['art_id'];
-        $data = model('Art')->infoData(['art_id' => ['eq', $aid]], '*', 0);
+        // 与 Vod::get_detail 一致：过滤 art_status=1，避免下架/隐藏文章详情被公开拉取
+        $data = model('Art')->infoData(['art_id' => ['eq', $aid], 'art_status' => ['eq', 1]], '*', 0);
         if ($data['code'] != 1 || empty($data['info'])) {
             return json(['code' => 1001, 'msg' => $data['msg'] ?? '数据不存在']);
         }

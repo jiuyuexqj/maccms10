@@ -161,6 +161,10 @@ class Analytics extends Base
 
     public function aggregate(Request $request)
     {
+        // 鉴权：仅本机(cron)或携带正确 api_key，拦截公网未授权触发重型 DB 聚合写
+        if (!mac_require_cron_auth()) {
+            return json(['code' => 1403, 'msg' => 'forbidden: admin/cron only']);
+        }
         $mode = strtolower($this->strVal($request->param(), 'mode', 16));
         if ($mode !== 'day') {
             $mode = 'hour';
