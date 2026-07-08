@@ -2236,6 +2236,23 @@ function mac_get_order($order,$param)
     return $order;
 }
 
+/**
+ * logo <img> 的 src 属性串，处理 Lottie(.json) logo。
+ * 普通 logo：返回 src="<url>"（与原模板 src="{:mac_url_img($pick)}" 等价）。
+ * Lottie(.json) logo：返回 src="<透明占位>" data-mac-logo-lottie-url="<url>"，
+ * 避免 <img src="*.json"> 被浏览器当图片抓取（解码失败 + 控制台报错 + 与 preload 重复抓取）。
+ * 真实 url 经 data 属性交给 mac-logo-lottie.js 升级为动画（JS 的 k()/E() 本就从该属性取 url，机制不变）。
+ * 用法：<img {:mac_logo_img_src($pick)} alt="...">
+ */
+function mac_logo_img_src($pick)
+{
+    $url = mac_url_img($pick);
+    if ($url !== '' && preg_match('/\.json$/i', preg_replace('/[?#].*/', '', $url))) {
+        return 'src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E" data-mac-logo-lottie-url="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '"';
+    }
+    return 'src="' . $url . '"';
+}
+
 function mac_url_img($url)
 {
     $url = mac_scalar_string($url);

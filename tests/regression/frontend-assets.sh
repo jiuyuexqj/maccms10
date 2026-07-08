@@ -28,6 +28,14 @@ for a in "/template/default/asset/js/jquery.js" "/template/default/asset/css/mac
     if [ "$code" = "200" ]; then ok "200 $a"; else no "$code $a"; fi
 done
 
+# 3) Lottie logo img 不再把 .json 当图片抓取（应为透明占位 + data-mac-logo-lottie-url）
+html=$(curl -sS --max-time 15 "$BASE/index.php" 2>/dev/null)
+if echo "$html" | grep -q 'data-mac-logo-lottie-url=' && ! echo "$html" | grep -qE 'src="[^"]*lottie/logo[^"]*\.json"'; then
+    ok "Lottie logo 用占位+data 属性，无 .json 图片抓取"
+else
+    no "Lottie logo 仍以 .json 为 img src（应改占位+data 属性）"
+fi
+
 echo ""
 echo "=== 通过 $PASS / 失败 $FAIL ==="
 [ "$FAIL" -eq 0 ] && { echo "✅ 前端资源不变量保持"; exit 0; } || { echo "❌ 存在前端资源回归"; exit 1; }
