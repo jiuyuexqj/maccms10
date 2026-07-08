@@ -41,6 +41,12 @@ show=$(curl -sS --max-time 15 "$BASE/index.php?s=vod/show/id/1.html" 2>/dev/null
 n=$(echo "$show" | grep -oE '<a class="vodlist_thumb" href="[^"]*vod/detail[^"]*"' | wc -l)
 if [ "$n" -ge 1 ]; then ok "分类页 noscript SSR 卡片 ($n 条)"; else no "分类页无 noscript SSR 卡片"; fi
 
+# 5) 关键页面 <title> 非空（seos.html aid 分支覆盖 + else 兜底）
+for p in "/index.php?s=map/index.html" "/index.php?s=art/index.html" "/index.php?s=manga/index.html" "/index.php?s=vod/show/id/1.html"; do
+    t=$(curl -sS --max-time 15 "$BASE$p" 2>/dev/null | grep -oE '<title>[^<]+</title>' | head -1)
+    if [ -n "$t" ]; then ok "有 title: $p"; else no "无 title: $p"; fi
+done
+
 echo ""
 echo "=== 通过 $PASS / 失败 $FAIL ==="
 [ "$FAIL" -eq 0 ] && { echo "✅ 前端资源不变量保持"; exit 0; } || { echo "❌ 存在前端资源回归"; exit 1; }

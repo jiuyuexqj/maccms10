@@ -42,7 +42,11 @@ class Art extends Base
         $this->check_search($param);
         SearchService::logFromParam(2, $param);
         $this->label_search($param);
-        return $this->label_fetch('art/search');
+        // 主题未提供 art/search 模板时回退到文章列表，避免空白 200
+        if (mac_tpl_exists('art/search')) {
+            return $this->label_fetch('art/search');
+        }
+        return $this->redirect(url('art/show', ['id' => intval($param['type_id'] ?? 1)]));
     }
 
     public function ajax_search()

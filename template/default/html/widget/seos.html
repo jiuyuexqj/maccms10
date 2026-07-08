@@ -194,6 +194,22 @@ $website_des = isset($tplconfig['theme']['seos']['website_des']) ? $tplconfig['t
 <title>{$website_name|mac_default='网址首页'}</title>
 <meta name="keywords" content="{$website_key|mac_default='网址首页'}" />
 <meta name="description" content="{$website_des|mac_default='网址首页'}" />
+{elseif condition="$maccms.aid==2"}
+<title>网站地图 - {$maccms.site_name}</title>
+<meta name="keywords" content="网站地图,{$maccms.site_keywords}" />
+<meta name="description" content="{$maccms.site_name} 网站地图。{$maccms.site_description}" />
+{elseif condition="$maccms.aid==20 OR $maccms.aid==22"}
+<title>{$obj.type_name|mac_default='文章'|mac_filter_html}{if condition="$param['page'] gt 1"} - 第{$param['page']}页{/if} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.type_key|mac_default=$obj.type_name|mac_filter_html},文章,{$maccms.site_name}" />
+<meta name="description" content="{$obj.type_des|mac_default=$maccms.site_description}" />
+{elseif condition="$maccms.aid==120 OR $maccms.aid==121 OR $maccms.aid==122"}
+<title>{$obj.type_name|mac_default='漫画'|mac_filter_html}{if condition="$param['page'] gt 1"} - 第{$param['page']}页{/if} - {$maccms.site_name}</title>
+<meta name="keywords" content="{$obj.type_key|mac_default=$obj.type_name|mac_filter_html},漫画,{$maccms.site_name}" />
+<meta name="description" content="{$obj.type_des|mac_default=$maccms.site_description}" />
+{else}
+<title>{$maccms.site_name}</title>
+<meta name="keywords" content="{$maccms.site_keywords}" />
+<meta name="description" content="{$maccms.site_description}" />
 {/if}
 {php}
 $__aid = (int) $maccms['aid'];
