@@ -1006,15 +1006,23 @@ class User extends Base
 
         $where = [];
         $where['user_id'] = $GLOBALS['user']['user_id'];
-        
-        $data = [];
-        $data['user_points'] = $GLOBALS['user']['user_points'] - $point;
-        $data['user_end_time'] = $end_time;
-        $data['group_id'] = $group_id;
 
-        $res = $this->where($where)->update($data);
-        if($res===false){
+        // 并发安全：原子扣费 + WHERE 余额守卫。旧实现 read($GLOBALS 旧余额)-check-write，
+        // 并发双花：两请求都读到旧余额、都过校验、各写 旧余额-point → 少扣。
+        // 改为单条 UPDATE … WHERE user_points>=point，余额不足/抢输返回 0 行。
+        $point = (int)$point;
+        $res = $this->where('user_id', $GLOBALS['user']['user_id'])
+            ->where('user_points', '>=', $point)
+            ->update([
+                'user_points'  => \think\Db::raw('user_points - ' . $point),
+                'user_end_time'=> $end_time,
+                'group_id'     => $group_id,
+            ]);
+        if ($res === false) {
             return ['code'=>1009,'msg'=>lang('model/user/update_group_err')];
+        }
+        if ($res == 0) {
+            return ['code'=>1005,'msg'=>lang('model/user/potins_not_enough')];
         }
 
         //积分日志
@@ -1059,14 +1067,20 @@ class User extends Base
         $sj = $points_long[$long];
         $end_time = $this->calcVipEndTimeByUpgradeRule($user['user_end_time'], $sj);
 
-        $where = ['user_id' => intval($user['user_id'])];
-        $data = [];
-        $data['user_points'] = intval($user['user_points']) - $point;
-        $data['user_end_time'] = $end_time;
-        $data['group_id'] = $group_id;
-        $res = $this->where($where)->update($data);
+        // 并发安全：原子扣费 + WHERE 余额守卫，避免并发双花（同 upgrade()）
+        $point = (int)$point;
+        $res = $this->where('user_id', intval($user['user_id']))
+            ->where('user_points', '>=', $point)
+            ->update([
+                'user_points'  => \think\Db::raw('user_points - ' . $point),
+                'user_end_time'=> $end_time,
+                'group_id'     => $group_id,
+            ]);
         if ($res === false) {
             return ['code' => 1005, 'msg' => lang('model/user/update_group_err')];
+        }
+        if ($res == 0) {
+            return ['code' => 1004, 'msg' => lang('model/user/potins_not_enough')];
         }
 
         $plog = [];
