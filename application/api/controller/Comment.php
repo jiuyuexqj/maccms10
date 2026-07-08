@@ -211,6 +211,7 @@ class Comment extends Base
             elseif ($type == 'down') { model('Comment')->where(['comment_id'=>$id])->setInc('comment_down'); cookie($cookie,'t',30); }
         }
         $info = Db::name('comment')->field('comment_up,comment_down')->where(['comment_id'=>$id])->find();
+        if (empty($info)) return json(['code'=>1002,'msg'=>'数据不存在']);
         return json(['code'=>1,'msg'=>'ok','data'=>['up'=>$info['comment_up']??0,'down'=>$info['comment_down']??0]]);
     }
 }
