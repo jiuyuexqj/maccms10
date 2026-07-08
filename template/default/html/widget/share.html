@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="{$maccms.path_tpl}/asset/css/share.css">
+<link rel="stylesheet" href="{$maccms.path_tpl}asset/css/share.css">
 {php}
   $u = isset($GLOBALS['user']) && is_array($GLOBALS['user']) ? $GLOBALS['user'] : [];
   $inviteCode = trim((string)($u['user_invite_code'] ?? ''));
@@ -82,23 +82,23 @@
           <div class="invite-step-desc">{if condition="$isGuest"}点击保存推广图片，或复制网址{else/}点击保存推广图片，或复制推广链接{/if}</div>
           <div class="invite-steps-section-label">常用社交软件：</div>
           <div class="invite-app-icons" aria-label="常用社交软件">
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/weixin.png" width="48" height="48" loading="lazy" alt="微信"></span>
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/qq.png" width="48" height="48" loading="lazy" alt="QQ"></span>
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/weibo.png" width="48" height="48" loading="lazy" alt="微博"></span>
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/douyin.png" width="48" height="48" loading="lazy" alt="抖音"></span>
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/xiaohongshu.png" width="48" height="48" loading="lazy" alt="小红书"></span>
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/kuaishou.png" width="48" height="48" loading="lazy" alt="快手"></span>
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/mm.png" width="48" height="48" loading="lazy" alt="陌陌"></span>
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/tt.png" width="48" height="48" loading="lazy" alt="探探"></span>
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/tieba.png" width="48" height="48" loading="lazy" alt="百度贴吧"></span>
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/bzhan.png" width="48" height="48" loading="lazy" alt="哔哩哔哩"></span>
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/zhihu.png" width="48" height="48" loading="lazy" alt="知乎"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/weixin.png" width="48" height="48" loading="lazy" alt="微信"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/qq.png" width="48" height="48" loading="lazy" alt="QQ"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/weibo.png" width="48" height="48" loading="lazy" alt="微博"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/douyin.png" width="48" height="48" loading="lazy" alt="抖音"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/xiaohongshu.png" width="48" height="48" loading="lazy" alt="小红书"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/kuaishou.png" width="48" height="48" loading="lazy" alt="快手"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/mm.png" width="48" height="48" loading="lazy" alt="陌陌"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/tt.png" width="48" height="48" loading="lazy" alt="探探"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/tieba.png" width="48" height="48" loading="lazy" alt="百度贴吧"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/bzhan.png" width="48" height="48" loading="lazy" alt="哔哩哔哩"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/zhihu.png" width="48" height="48" loading="lazy" alt="知乎"></span>
           </div>
           <div class="invite-steps-section-label">各类游戏公共频道：</div>
           <div class="invite-app-icons invite-app-icons--games" aria-label="游戏社区">
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/wangzhe.png" width="48" height="48" loading="lazy" alt="王者荣耀"></span>
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/heping.png" width="48" height="48" loading="lazy" alt="和平精英"></span>
-            <span class="invite-app-icon"><img src="{$maccms.path_tpl}/images/share/dandan.png" width="48" height="48" loading="lazy" alt="蛋仔派对"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/wangzhe.png" width="48" height="48" loading="lazy" alt="王者荣耀"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/heping.png" width="48" height="48" loading="lazy" alt="和平精英"></span>
+            <span class="invite-app-icon"><img src="{$maccms.path_tpl}images/share/dandan.png" width="48" height="48" loading="lazy" alt="蛋仔派对"></span>
           </div>
         </div>
         <div class="invite-step">
@@ -110,4 +110,4 @@
   </div>
 </div>
 <script src="{$maccms.path}template/default/asset/js/stem-jquery.qrcode.js?v=202604161"></script>
-<script src="{$maccms.path_tpl}/asset/js/share.js?v=202604261806"></script>
+<script src="{$maccms.path_tpl}asset/js/share.js?v=202604261806"></script>

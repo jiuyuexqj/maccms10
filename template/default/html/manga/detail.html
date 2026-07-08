@@ -3,8 +3,8 @@
 <head>
     {include file="public/include"}
     {include file="public/include_rating_svg" /}
-    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}/asset/css/content-detail-app.css" />
-    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}/asset/css/manga-detail.css" />
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/content-detail-app.css" />
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/manga-detail.css" />
 </head>
 <body class="manga-detail-csr-body"
     data-detail-id="{$param.id|default='0'}"
@@ -150,7 +150,7 @@
     </div>
     {include file="public/foot"}
     <script type="text/javascript" src="{$maccms.path}template/default/asset/js/mac-home-card-render.js?v=202604161"></script>
-    <script type="text/javascript" src="{$maccms.path_tpl}/asset/js/manga-detail-ajax-render.js"></script>
+    <script type="text/javascript" src="{$maccms.path_tpl}asset/js/manga-detail-ajax-render.js"></script>
     <script>
     try{
         sessionStorage.setItem('manga_detail_history_length', String(history.length));

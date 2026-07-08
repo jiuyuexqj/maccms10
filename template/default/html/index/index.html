@@ -16,7 +16,7 @@
     </style>
     <link rel="stylesheet" type="text/css" href="{$maccms.path}template/default/asset/css/index.css?v=202604169">
     {include file="module/vod_tagwall_link_css" /}
-    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}/asset/css/home-topic-tangram-preview.css">
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/home-topic-tangram-preview.css">
     <script src="{$maccms.path}template/default/asset/js/jquery-adaptive.js?v=202604161"></script>
 </head>
 <body class="home-index-body" data-header-scroll-threshold="12">
@@ -37,8 +37,8 @@
                     <ul class="fn-clear nav-list">
                         <li id="latest1" onmouseover="setTab('latest',1,8);" class="current">
                             <span>
-                                <img class="laset_new_img hl_icon_light" src="{$maccms.path_tpl}/images/la/home-icon10.png" alt="">
-                                <img class="laset_new_img hl_icon_black" src="{$maccms.path_tpl}/images/black/home-icon10.png" alt="">
+                                <img class="laset_new_img hl_icon_light" src="{$maccms.path_tpl}images/la/home-icon10.png" alt="">
+                                <img class="laset_new_img hl_icon_black" src="{$maccms.path_tpl}images/black/home-icon10.png" alt="">
                                 <span style="margin: 0;">{$tplconfig.theme.hotvod.title|default='热门推荐'}</span>
                             </span>
                         </li>
@@ -274,7 +274,7 @@
 <script type="application/json" id="js-home-banner-ads-json">{php}echo json_encode((isset($bannerSwiperRows) && is_array($bannerSwiperRows)) ? array_values($bannerSwiperRows) : [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);{/php}</script>
 <div id="js-home-api-config" data-api-base="{$maccms.path}api.php" data-vod-playlink="{:(isset($mac_vod_playlink) && (int)$mac_vod_playlink === 1) ? '1' : '0'}"></div>
 <div id="js-home-notempty-tpl" class="fn-hide" aria-hidden="true">{include file="public/notempty"}</div>
-<script src="{$maccms.path_tpl}/asset/js/mac-catalog-media.js"></script>
+<script src="{$maccms.path_tpl}asset/js/mac-catalog-media.js"></script>
 <script src="{$maccms.path}template/default/asset/js/mac-home-card-render.js?v=202604161"></script>
 <script src="{$maccms.path}template/default/asset/js/index-home-parts.js?v=202604169"></script>
 {include file="module/vod_tagwall_script_js" /}

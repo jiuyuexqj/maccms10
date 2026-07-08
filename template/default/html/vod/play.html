@@ -2,11 +2,11 @@
 <html>
 <head>
     {include file="public/include"}
-    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}/asset/css/vod-play.css?v=202606261" />
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-play.css?v=202606261" />
     {if condition="($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1 && ($obj['vod_play_list'][$param['sid']]['player_info']['from'] eq 'dplayer' || $obj['vod_play_list'][$param['sid']]['player_info']['from'] eq 'videojs')"}
-    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}/asset/css/vod-play-social.css?v=202604271" />
-    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}/asset/css/vod-play-progress.css?v=202606246" />
-    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}/asset/css/vod-play-failover.css?v=202606262" />
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-play-social.css?v=202604271" />
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-play-progress.css?v=202606246" />
+    <link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/vod-play-failover.css?v=202606262" />
     {/if}
 </head>
 <body>
@@ -117,8 +117,8 @@
                                             <button type="button" class="mac-play-dm-toolbar__submit" id="macPlayDanmakuSubmit" data-lang="string_play_dm_submit">发送</button>
                                         </div>
                                         <button type="button" class="mac-play-dm-toggle is-dm-on" data-mac-play-action="toggle-danmaku">
-                                            <img class="mac-play-dm-toggle__pic mac-play-dm-toggle__pic--on" src="{$maccms.path_tpl}/asset/img/vod-play-dm-on@2x.png" width="56" height="56" decoding="async" draggable="false" />
-                                            <img class="mac-play-dm-toggle__pic mac-play-dm-toggle__pic--off" src="{$maccms.path_tpl}/asset/img/vod-play-dm-off@2x.png" width="56" height="56" decoding="async" draggable="false" />
+                                            <img class="mac-play-dm-toggle__pic mac-play-dm-toggle__pic--on" src="{$maccms.path_tpl}asset/img/vod-play-dm-on@2x.png" width="56" height="56" decoding="async" draggable="false" />
+                                            <img class="mac-play-dm-toggle__pic mac-play-dm-toggle__pic--off" src="{$maccms.path_tpl}asset/img/vod-play-dm-off@2x.png" width="56" height="56" decoding="async" draggable="false" />
                                         </button>
                                     </div>
                                 </div>
@@ -140,7 +140,7 @@
                                         </div>
                                         <button type="button" class="mac-play-chat-panel__close" id="macPlayChatClose">
                                             <span class="mac-play-chat-panel__close-sr" data-lang="string_close">关闭</span>
-                                            <img class="mac-play-chat-panel__close-img" src="{$maccms.path_tpl}/images/login/popup_close.png" width="22" height="22" alt="" decoding="async" draggable="false" />
+                                            <img class="mac-play-chat-panel__close-img" src="{$maccms.path_tpl}images/login/popup_close.png" width="22" height="22" alt="" decoding="async" draggable="false" />
                                         </button>
                                     </div>
                                     {if condition="$play_chatroom_enabled"}
@@ -449,11 +449,11 @@
         {include file="widget/recharge_modal" /}
         {include file="public/foot"}
         {if condition="($obj.vod_copyright neq 1 || $GLOBALS['config']['app']['copyright_status'] neq 1) && !$obj.vod_lock && $popedom.code elt 1 && ($obj['vod_play_list'][$param['sid']]['player_info']['from'] eq 'dplayer' || $obj['vod_play_list'][$param['sid']]['player_info']['from'] eq 'videojs')"}
-        <script defer src="{$maccms.path_tpl}/asset/js/vod-play-social.js?v=202604261830"></script>
-        <script defer src="{$maccms.path_tpl}/asset/js/vod-play-progress.js?v=202606246"></script>
-        <script defer src="{$maccms.path_tpl}/asset/js/vod-play-failover.js?v=202606262"></script>
+        <script defer src="{$maccms.path_tpl}asset/js/vod-play-social.js?v=202604261830"></script>
+        <script defer src="{$maccms.path_tpl}asset/js/vod-play-progress.js?v=202606246"></script>
+        <script defer src="{$maccms.path_tpl}asset/js/vod-play-failover.js?v=202606262"></script>
         {/if}
-        <script type="text/javascript" src="{$maccms.path_tpl}/asset/js/vod-play-playlist.js"></script>
+        <script type="text/javascript" src="{$maccms.path_tpl}asset/js/vod-play-playlist.js"></script>
         {include file="module/vod_tagwall_script_js" /}
     </div>
 </body>

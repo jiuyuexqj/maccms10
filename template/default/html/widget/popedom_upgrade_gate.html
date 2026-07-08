@@ -1,4 +1,4 @@
-	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}/asset/css/widget-popedom_upgrade_gate.css" />
+	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/widget-popedom_upgrade_gate.css" />
 {php}
 $__buy_mid = intval($maccms['mid'] ?? 0);
 $__buy_id = 0;
@@ -31,8 +31,8 @@ $__show_confirm_buy = ($__buy_enabled === 1 && $__need_points > 0) ? 1 : 0;
 <div class="popedom-upgrade-gate" data-upgrade-url="{:url('user/upgrade')}" data-ajax-upgrade-url="{:url('user/ajax_upgrade')}" data-upgrade-css-url="{$maccms.path}template/default/asset/css/user-upgrade.css" data-user-buy-url="{:url('user/buy')}" data-user-index-url="{:url('user/index')}" data-buy-enabled="{$__buy_enabled}" data-need-points="{$__need_points}">
 	<div class="popedom-upgrade-gate-inner player_popeom">
 		<div class="popedom-upgrade-gate__icon" aria-hidden="true">
-			<img class="popedom-upgrade-gate__icon-img popedom-upgrade-gate__icon-img--light" src="{$maccms.path_tpl}/images/home/popedom-upgrade@2x.png" alt="" width="88" height="88" decoding="async" />
-			<img class="popedom-upgrade-gate__icon-img popedom-upgrade-gate__icon-img--dark" src="{$maccms.path_tpl}/images/home/popedom-upgrade@2x-balck.png" alt="" width="88" height="88" decoding="async" />
+			<img class="popedom-upgrade-gate__icon-img popedom-upgrade-gate__icon-img--light" src="{$maccms.path_tpl}images/home/popedom-upgrade@2x.png" alt="" width="88" height="88" decoding="async" />
+			<img class="popedom-upgrade-gate__icon-img popedom-upgrade-gate__icon-img--dark" src="{$maccms.path_tpl}images/home/popedom-upgrade@2x-balck.png" alt="" width="88" height="88" decoding="async" />
 		</div>
 		<p class="popedom-upgrade-title">这部分内容需要会员才能观看哦～</p>
 		<p class="popedom-upgrade-subtitle">开通会员即可畅享全部精彩内容，感谢您的支持</p>

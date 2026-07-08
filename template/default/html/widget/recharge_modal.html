@@ -1,8 +1,8 @@
-	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}/asset/css/widget-recharge_modal.css" />
-	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}/asset/css/mac-pop-sheets.css" />
-	<script src="{$maccms.path_tpl}/asset/js/pay-qrcode-render.js?v=202604161"></script>
+	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/widget-recharge_modal.css" />
+	<link rel="stylesheet" type="text/css" href="{$maccms.path_tpl}asset/css/mac-pop-sheets.css" />
+	<script src="{$maccms.path_tpl}asset/js/pay-qrcode-render.js?v=202604161"></script>
 
-<div id="recharge-overlay" data-rc-img-base="{$maccms.path_tpl}/images/recharge/" data-url-benefits="{:url('user/benefits')}" data-rc-config-url="{:rtrim($maccms.path,'/').'/api.php/payment/get_config'}" data-rc-order-create-url="{:rtrim($maccms.path,'/').'/api.php/order/create'}" data-rc-gopay-url="{:rtrim($maccms.path,'/').'/api.php/payment/gopay'}" data-rc-order-query-url="{:rtrim($maccms.path,'/').'/api.php/order/check_status'}">
+<div id="recharge-overlay" data-rc-img-base="{$maccms.path_tpl}images/recharge/" data-url-benefits="{:url('user/benefits')}" data-rc-config-url="{:rtrim($maccms.path,'/').'/api.php/payment/get_config'}" data-rc-order-create-url="{:rtrim($maccms.path,'/').'/api.php/order/create'}" data-rc-gopay-url="{:rtrim($maccms.path,'/').'/api.php/payment/gopay'}" data-rc-order-query-url="{:rtrim($maccms.path,'/').'/api.php/order/check_status'}">
   <div class="rc-modal">
     <div class="rc-hd">
       <h3 data-lang="user_zxcz">在线充值</h3>
@@ -23,7 +23,7 @@
       
       <div id="rcAmountPanel" class="rc-amount-stage" style="display:none">
         <div class="rc-balance-row">
-          <img class="rc-coin-ico" src="{$maccms.path_tpl}/images/recharge/recharge-coin.png" width="22" height="22" alt="" decoding="async" />
+          <img class="rc-coin-ico" src="{$maccms.path_tpl}images/recharge/recharge-coin.png" width="22" height="22" alt="" decoding="async" />
           <p class="rc-balance-txt"><span data-lang="user_syjf">剩余金币</span>：<strong id="rcPoints">0</strong></p>
         </div>
         <div class="rc-card">
