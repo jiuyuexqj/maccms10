@@ -373,7 +373,8 @@ class Art extends Base
             $num = intval($info['art_score_num']) + 1;
             $all = intval($info['art_score_all']) + $score;
             $avg = number_format($all / $num, 1, '.', '');
-            model('Art')->where($where)->update(['art_score_num'=>$num,'art_score_all'=>$all,'art_score'=>$avg]);
+            // 并发安全：原子 UPDATE（Db::raw 自增 + 行锁），替代旧 read-modify-write（多 worker 并发丢更新，与 update_hits 同类）
+            model('Art')->where($where)->update(mac_score_atomic_update($score, 'art_score_num', 'art_score_all', 'art_score'));
             cookie($cookie, 't', 30);
             return json(['code'=>1,'msg'=>lang('score_ok'),'data'=>['score'=>$avg,'score_num'=>$num,'score_all'=>$all]]);
         }

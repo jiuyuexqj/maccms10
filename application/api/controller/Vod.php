@@ -752,7 +752,8 @@ class Vod extends Base
             $num = intval($info['vod_score_num']) + 1;
             $all = intval($info['vod_score_all']) + $score;
             $avg = number_format($all / $num, 1, '.', '');
-            model('Vod')->where($where)->update(['vod_score_num' => $num, 'vod_score_all' => $all, 'vod_score' => $avg]);
+            // 并发安全：原子 UPDATE（Db::raw 自增 + 行锁），替代旧 read-modify-write（多 worker 并发丢更新，与 update_hits 同类）
+            model('Vod')->where($where)->update(mac_score_atomic_update($score, 'vod_score_num', 'vod_score_all', 'vod_score'));
             cookie($cookie, 't', 30);
             return json(['code' => 1, 'msg' => lang('score_ok'), 'data' => ['score' => $avg, 'score_num' => $num, 'score_all' => $all]]);
         }

@@ -4050,3 +4050,28 @@ function mac_api_exception_response($e, $debug = false)
     }
     return ['status' => $status, 'msg' => $msg];
 }
+
+/**
+ * 构造“评分自增”的并发安全 UPDATE 数据（vod/art 评分通用）。
+ *
+ * 背景：api/Vod::update_score、api/Art::update_score 旧实现是 read-modify-write
+ * （先 infoData 读 score_num/score_all，PHP 算 num+1/all+score/avg 再整体写回），
+ * 多 worker 并发下丢更新（与 update_hits 同类）。本函数返回 ['exp'=>Db::raw] 原子表达式，
+ * 交由 ThinkPHP 生成单条原子 UPDATE（行锁 + 原子自增），彻底消除丢更新。
+ * 平均分 scoreField 用 (allField+score)/(numField+1) 显式计算，不依赖 SET 求值顺序。
+ *
+ * @param int    $score        本次评分（已 intval，1..10）
+ * @param string $numField     评分人数字段名（vod_score_num / art_score_num）
+ * @param string $allField     评分总和字段名
+ * @param string $scoreField   平均分字段名
+ * @return array 字段=>Db::raw 表达式
+ */
+function mac_score_atomic_update($score, $numField, $allField, $scoreField)
+{
+    $s = (int)$score;
+    return [
+        $numField   => \think\Db::raw($numField . '+1'),
+        $allField   => \think\Db::raw($allField . '+' . $s),
+        $scoreField => \think\Db::raw('ROUND((' . $allField . '+' . $s . ')/(' . $numField . '+1),1)'),
+    ];
+}
