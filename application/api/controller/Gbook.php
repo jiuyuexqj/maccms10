@@ -121,7 +121,7 @@ class Gbook extends Base
         $data = [];
         $data['gbook_content'] = htmlentities(mac_filter_words($content));
         $data['gbook_reply'] = '';
-        $data['gbook_ip'] = mac_get_client_ip();
+        $data['gbook_ip'] = mac_get_ip_long();
         $data['gbook_time'] = time();
         if (!empty(cookie('user_id'))) {
             $uinfo = model('User')->field('user_nick_name,user_name')->where(['user_id' => intval(cookie('user_id'))])->find();

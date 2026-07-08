@@ -153,7 +153,7 @@ class Comment extends Base
         $data['comment_rid'] = intval($param['comment_rid'] ?? 0);
         $data['comment_pid'] = intval($param['comment_pid'] ?? 0);
         $data['comment_content'] = htmlentities(mac_filter_words($content));
-        $data['comment_ip'] = mac_get_client_ip();
+        $data['comment_ip'] = mac_get_ip_long();
         $data['comment_time'] = time();
 
         if (!empty(cookie('user_id'))) {
