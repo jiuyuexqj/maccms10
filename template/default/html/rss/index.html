@@ -6,14 +6,14 @@
 		<pubDate>{:date('Y-m-d H:i:s')}</pubDate>
 		<generator>Rss Powered By {$maccms.site_url}</generator>
 		<description>{$maccms.site_description}</description>
-		<link>{$maccms.http_type}{$maccms.site_url}</link>
+		<link>{:request()->domain()}</link>
 		{maccms:vod num="100" order="desc" by="time"}
 		<item>
 			<title>
 				<![CDATA[{$vo.vod_name} {$vo.vod_remarks}]]>
 			</title>
-			<link>{$maccms.http_type}{$maccms.site_url}{:mac_url_vod_detail($vo)}</link>
-			<guid>{$maccms.http_type}{$maccms.site_url}{:mac_url_vod_detail($vo)}</guid>
+			<link>{:request()->domain()}{:mac_url_vod_detail($vo)}</link>
+			<guid>{:request()->domain()}{:mac_url_vod_detail($vo)}</guid>
 			<description>
 				<![CDATA[{$vo.vod_content|mac_filter_html}]]>
 			</description>
@@ -24,8 +24,8 @@
 			<title>
 				<![CDATA[{$vo.art_name} {$vo.art_remarks}]]>
 			</title>
-			<link>{$maccms.http_type}{$maccms.site_url}{:mac_url_art_detail($vo)}</link>
-			<guid>{$maccms.http_type}{$maccms.site_url}{:mac_url_art_detail($vo)}</guid>
+			<link>{:request()->domain()}{:mac_url_art_detail($vo)}</link>
+			<guid>{:request()->domain()}{:mac_url_art_detail($vo)}</guid>
 			<description>
 				<![CDATA[{$vo.art_content|mac_filter_html}]]>
 			</description>

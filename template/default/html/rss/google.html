@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
 	{maccms:vod num="100" order="desc" by="time"}
 	<url>
-		<loc>{$maccms.http_type}{$maccms.site_url}{:mac_url_vod_detail($vo)}</loc>
+		<loc>{:request()->domain()}{:mac_url_vod_detail($vo)}</loc>
 		<image:image>
 			<image:loc>{$vo.vod_pic|mac_url_img}</image:loc>
 		</image:image>
@@ -10,7 +10,7 @@
 			<video:title>
 				<![CDATA[{$vo.vod_name}]]>
 			</video:title>
-			<video:content_loc>{$maccms.http_type}{$maccms.site_url}{:mac_url_vod_play($vo,['sid'=>1,'nid'=>1])}</video:content_loc>
+			<video:content_loc>{:request()->domain()}{:mac_url_vod_play($vo,['sid'=>1,'nid'=>1])}</video:content_loc>
 			<video:category>
 				<![CDATA[{$vo.type.type_name}]]>
 			</video:category>
@@ -22,7 +22,7 @@
 	</url>
 	{/maccms:vod}{maccms:art num="100" order="desc" by="time"}
 	<url>
-		<loc>{$maccms.http_type}{$maccms.site_url}{:mac_url_art_detail($vo)}</loc>
+		<loc>{:request()->domain()}{:mac_url_art_detail($vo)}</loc>
 		<image:image>
 			<image:loc>
 				<![CDATA[{$vo.art_pic|mac_url_img}]]>
