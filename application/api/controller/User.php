@@ -297,6 +297,14 @@ class User extends Base
         }
 
         $param = $request->param();
+        // CSRF 防护：登录 CSRF 可让攻击者把受害者登入攻击者账号。token 经 {:token()} 写入表单+会话，
+        // 此处用非消费式 hash_equals 校验——TP5 内置 Validate::token 验后即 Session::delete（单次有效），
+        // 对 AJAX 登录会导致“密码错→重试”失败；本实现不销毁，token 仍绑定会话，跨站伪造者拿不到。
+        $csrfTok = isset($param['__token__']) ? (string)$param['__token__'] : '';
+        $sessTok = (string)\think\Session::get('__token__');
+        if ($sessTok === '' || !hash_equals($sessTok, $csrfTok)) {
+            return json(['code' => 1001, 'msg' => '表单已过期，请刷新页面重试']);
+        }
         if (empty($param['user_name']) || empty($param['user_pwd'])) {
             return json(['code' => 1001, 'msg' => lang('api/user_name_pwd_empty')]);
         }
@@ -320,7 +328,6 @@ class User extends Base
                 'user_phone'     => $info['user_phone'],
                 'group_id'       => $info['group_id'],
                 'user_points'    => $info['user_points'],
-                'user_exp'       => $info['user_exp'],
                 'user_reg_time'  => $info['user_reg_time'],
                 'user_portrait'  => mac_get_user_portrait($info['user_id']),
                 'user_invite_code' => $info['user_invite_code'],
