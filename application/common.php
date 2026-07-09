@@ -828,6 +828,10 @@ function mac_curl_post($url,$data,$heads=array(),$cookie='')
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+    // SSRF 防护：仅允许 http/https 协议，禁止 file:///gopher:///ftp:// 等；重定向也限定同协议，
+    // 阻断“采集/回链等抓取”被诱导去读本地文件或非 HTTP 服务（H6/H7/M7）。
+    curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+    curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_HEADER,0);
@@ -859,6 +863,10 @@ function mac_curl_get($url,$heads=array(),$cookie='')
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+    // SSRF 防护：仅允许 http/https 协议，禁止 file:///gopher:///ftp:// 等；重定向也限定同协议，
+    // 阻断“采集/回链等抓取”被诱导去读本地文件或非 HTTP 服务（H6/H7/M7）。
+    curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+    curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_HEADER,0);
