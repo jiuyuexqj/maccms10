@@ -641,8 +641,9 @@ class User extends Base
             } else {
                 $where['user_email'] = ['eq', $data['user_name']];
             }
-            // https://github.com/magicblack/maccms10/issues/781 兼容密码
-            $where['user_pwd'] = [['eq', md5($password_raw)], ['eq', $data['user_pwd']], 'or'];
+            // 安全：仅校验 md5 密码。旧实现额外 OR 原文 user_pwd（issue#781 兼容历史明文），
+            // 使任何明文密码行都能用明文登录，维持明文凭证存活。移除该回退，强制哈希校验。
+            $where['user_pwd'] = ['eq', md5($password_raw)];
         } else {
             if (empty($data['openid']) || empty($data['col'])) {
                 return ['code' => 1001, 'msg' => lang('model/user/input_require')];

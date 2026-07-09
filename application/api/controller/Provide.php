@@ -180,6 +180,9 @@ class Provide extends Base
     {
         $type_list = model('Type')->getCache('type_list');
         foreach($res['list'] as $k=>&$v){
+            // 安全：剥离内容保护密钥字段——采集接口下发 vod_pwd/vod_pwd_play 等会让采集方
+            // 直接拿到点播密码、绕过密码/付费墙（H1）。这些字段对采集无意义，必须剔除。
+            unset($v['vod_pwd'], $v['vod_pwd_play'], $v['vod_pwd_down'], $v['vod_pwd_url'], $v['vod_pwd_play_url'], $v['vod_pwd_down_url']);
             $type_info = $type_list[$v['type_id']];
             $v['type_name'] = $type_info['type_name'];
             $v['vod_time'] = date('Y-m-d H:i:s',$v['vod_time']);

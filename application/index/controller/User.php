@@ -1128,7 +1128,9 @@ class User extends Base
         $url = '/';
         if(!empty($param['url'])){
             $tempu = @parse_url($param['url']);
-            if($_SERVER['HTTP_HOST'] == $tempu['host']){
+            // 仅允许相对路径（同站）。旧实现比对 $_SERVER['HTTP_HOST']（客户端可伪造），
+            // 攻击者设 Host=attacker + url=http://attacker/x 即可开放重定向/钓鱼中转。
+            if(empty($tempu['host']) && empty($tempu['scheme'])){
                 $url = $param['url'];
             }
         }

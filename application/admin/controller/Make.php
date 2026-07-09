@@ -12,6 +12,11 @@ class Make extends Base
         //header('X-Accel-Buffering: no');
         $this->_param = input();
         $GLOBALS['ismake'] = '1';
+        // 安全：tab 作为字段名前缀拼进 SQL（{tab}_id / {tab}_time / {tab}_time_make，含 Db::raw），
+        // 必须白名单，否则含括号/空格即 SQL 注入（M1）。仅这些内容表可生成静态页。
+        if (isset($this->_param['tab']) && !in_array($this->_param['tab'], ['vod','art','topic','website','actor','role','manga','plot'], true)) {
+            $this->_param['tab'] = 'vod';
+        }
 
         if($this->_param['ac2']=='wap'){
             $TMP_TEMPLATEDIR = $GLOBALS['config']['site']['mob_template_dir'];

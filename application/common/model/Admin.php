@@ -144,6 +144,8 @@ class Admin extends Base {
             return ['code'=>1004,'msg'=>lang('model/admin/update_login_err')];
         }
 
+        // 防会话固定：登录成功后立即换发 session ID（旧 ID 失效），防攻击者预置 session 劫持
+        if (session_id() !== '') { session_regenerate_id(true); }
         session('admin_auth','1');
         session('admin_info',$row->toArray());
 
