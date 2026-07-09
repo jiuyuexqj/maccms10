@@ -131,7 +131,7 @@ class Admin extends Base {
         if(empty($row)){
             return ['code'=>1003,'msg'=>lang('access_or_pass_err')];
         }
-        $random = md5(rand(10000000,99999999));
+        $random = bin2hex(random_bytes(16));
         $update['admin_login_ip'] = mac_get_ip_long();
         $update['admin_login_time'] = time();
         $update['admin_login_num'] = $row['admin_login_num'] + 1;

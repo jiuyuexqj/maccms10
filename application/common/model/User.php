@@ -474,7 +474,7 @@ class User extends Base
                 $update['group_id'] = 2;
             }
 
-            $random = md5(rand(10000000, 99999999));
+            $random = bin2hex(random_bytes(16));
             $update['user_random'] = $random;
             $update['user_login_ip'] = mac_get_ip_long();
             $update['user_login_time'] = time();
@@ -533,7 +533,7 @@ class User extends Base
         }
 
         // 创建用户
-        $random = md5(rand(10000000, 99999999));
+        $random = bin2hex(random_bytes(16));
         $fields = [];
         $fields['user_name'] = $user_name;
         $fields['user_pwd'] = md5($password_raw);
@@ -666,7 +666,7 @@ class User extends Base
             $update['group_id'] = 2;
         }
 
-        $random = md5(rand(10000000, 99999999));
+        $random = bin2hex(random_bytes(16));
         $update['user_random'] = $random;
         $update['user_login_ip'] = mac_get_ip_long();
         $update['user_login_time'] = time();

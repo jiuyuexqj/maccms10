@@ -1,0 +1,27 @@
+# MacCMS10 根目录访问加固（Apache；nginx/AllowOverride=None 部署需在 server 块加等价 deny）
+# 目的：阻止源码/配置/敏感文件被公网直接抓取（.git 源码重建、install.sql 表结构、
+# CLAUDE.md/AUDIT_REPORT.md 鉴权链泄露、composer.* / *.bak / runtime 日志等）。
+# 入口 index.php/admin.php/api.php 与 static/template/upload 资源不受影响。
+
+# 1) 屏蔽 .git 目录（防 git-dumper 重建整库源码，含 database.php 明文 DB 口令）
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule (^|/)\.git(?:/.*)?$ - [F,L]
+</IfModule>
+
+# 2) 屏蔽敏感后缀/前缀文件（.sql/.md/.bak/.lock/.log/composer.*/dotfiles）
+<FilesMatch "(^composer\.)|(^\.git)|(\.(sql|lock|md|bak|log|orig|swp)$)">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# 3) 屏蔽源码/运行时/依赖/文档目录的 HTTP 直接访问
+#    （PHP 内部 include/require 走文件系统不经 Apache，仅拦外部 HTTP 抓取）
+<IfModule mod_alias.c>
+  RedirectMatch 403 (?i)^/(runtime|vendor|docs|application|thinkphp)(/|$)
+</IfModule>
