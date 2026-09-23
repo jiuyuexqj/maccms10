@@ -240,4 +240,82 @@ class ThemeRefreshCssTest extends TestCase
             $this->assertStringNotContainsString('#40cc92', $css, $f . ' 仍含旧薄荷绿 #40cc92');
         }
     }
+
+    // ---------------------------------------------------------
+    // 6) 第二轮（frontend-design skill 引导）：双强调色与层级
+    // ---------------------------------------------------------
+
+    public function test_warm_accent_defined_and_passes_contrast()
+    {
+        $css = $this->readTpl(self::CSS_DIR . 'public-head-main.css');
+        $light = $this->parseTokenBlock($css, '/^:root\{([^}]*)\}/');
+        $dark = $this->parseTokenBlock($css, '/\.bstem,body\.bstem\{([^}]*)\}/');
+        $this->assertArrayHasKey('--tpl-accent-warm', $light, ':root 缺少影院金 --tpl-accent-warm');
+        $this->assertArrayHasKey('--tpl-accent-warm', $dark, '.bstem 缺少影院金 --tpl-accent-warm');
+        $this->assertGreaterThanOrEqual(
+            4.5,
+            $this->contrastRatio($light['--tpl-accent-warm'], '#ffffff'),
+            "亮色影院金 {$light['--tpl-accent-warm']} 白底对比度低于 WCAG AA 4.5"
+        );
+        $this->assertGreaterThanOrEqual(
+            4.5,
+            $this->contrastRatio($dark['--tpl-accent-warm'], $dark['--tpl-bg-base']),
+            "暗色影院金 {$dark['--tpl-accent-warm']} 在 {$dark['--tpl-bg-base']} 上对比度低于 WCAG AA 4.5"
+        );
+    }
+
+    public function test_round2_component_layer_present()
+    {
+        $css = $this->readTpl(self::CSS_DIR . 'theme-refresh.css');
+        // 标题层级：700 字重
+        $this->assertMatchesRegularExpression(
+            '/\.hu-section-head h2[^{]*\{[^}]*font-weight:\s*700/',
+            $css,
+            '区块标题必须有 700 字重（层级）'
+        );
+        // 卡片 hover 只做亮度/饱和微调，禁止 transform 缩放（零布局位移）
+        $this->assertStringContainsString('.vodlist_item:hover .vodlist_thumb', $css);
+        $this->assertStringContainsString('filter: brightness(1.06) saturate(1.05)', $css);
+        $this->assertStringNotContainsString(
+            '.vodlist_item:hover .vodlist_thumb' . '{' . 'transform',
+            '卡片 hover 不得使用 transform 缩放（会产生布局位移）'
+        );
+        // 次级按钮为幽灵样式
+        $this->assertMatchesRegularExpression(
+            '/\.hu-section-head \.pc_more\s*\{[^}]*background:\s*transparent/',
+            $css,
+            '「更多」按钮必须为幽灵样式（透明底）'
+        );
+        // 搜索按钮为主按钮（主题色底 + 对比色文字）
+        $this->assertMatchesRegularExpression(
+            '/\.head_search_capsule_submit\s*\{[^}]*background:\s*var\(--tpl-accent\)/',
+            $css,
+            '搜索按钮必须是页面唯一主按钮（主题色底）'
+        );
+        // 评分走影院金
+        $this->assertStringContainsString('color: var(--tpl-accent-warm)', $css, '排行榜评分必须使用影院金');
+    }
+
+    public function test_no_leftover_old_mint_rgba_in_home_sheets()
+    {
+        // 旧薄荷绿的 rgba 形式（token 换色时只换了 hex）必须从首页加载表中清除
+        foreach (['head.css', 'public-head-early.css', 'black.css', 'home-banner.css', 'site-card-modal.css'] as $f) {
+            $css = $this->readTpl(self::CSS_DIR . $f);
+            $this->assertStringNotContainsString(
+                'rgba(64,204,146',
+                $css,
+                $f . ' 仍含旧薄荷绿 rgba(64,204,146,...)，应改为 color-mix + token'
+            );
+            $this->assertStringNotContainsString('rgba(34,197,94', $css, $f . ' 仍含遗留 Tailwind 绿 rgba');
+        }
+    }
+
+    public function test_frontend_design_skill_installed_in_project()
+    {
+        // skill 装在项目 .claude/skills/，保证后续会话原生可用
+        $skill = ROOT_PATH . '.claude/skills/frontend-design/SKILL.md';
+        $this->assertFileExists($skill, 'frontend-design skill 应安装在项目 .claude/skills/');
+        $head = file_get_contents($skill, false, null, 0, 400);
+        $this->assertStringContainsString('name: frontend-design', $head, 'SKILL.md 元数据不完整');
+    }
 }

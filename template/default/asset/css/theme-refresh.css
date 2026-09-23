@@ -86,3 +86,62 @@ body.bstem::-webkit-scrollbar-track {
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================
+   第二轮（frontend-design skill 引导）——层级与双强调色
+   ------------------------------------------------------------
+   设计判断记录（对照 skill 的"通用感校准清单"）：
+   - "近黑底 + 单一亮绿强调色"是 AI 生成页典型特征 → 引入
+     影院金 --tpl-accent-warm 作为第二强调色，语义分工：
+     绿 = 交互（链接/hover/主按钮），金 = 价值（评分/VIP）。
+   - hover 每张卡片都在动是默认套路，但视频目录的卡片 hover
+     反馈是行业惯例且"响应用户操作" → 保留但收敛为亮度/饱和
+     微调，不缩放、零布局位移。
+   - 页面只设一个主行动点（搜索按钮），次级按钮全部降为幽灵样式。
+   ============================================================ */
+
+/* 标题层级：PC 端补齐与移动端一致的 700 字重，中文标题加少量字距 */
+.hu-section-head h2,
+.box .title h2 {
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+/* 卡片 hover：亮度与饱和微调 + 标题切主题色，动效响应用户操作 */
+.vodlist_thumb {
+  transition: filter .2s ease;
+}
+.vodlist_item:hover .vodlist_thumb,
+.ranklist_item:hover .ranklist_thumb {
+  filter: brightness(1.06) saturate(1.05);
+}
+.vodlist_item:hover .vodlist_title a {
+  color: var(--tpl-accent);
+}
+
+/* 次级按钮（更多/换一换）降为幽灵样式：透明底 + 描边 */
+.hu-section-head .pc_more {
+  background: transparent;
+  border: 1px solid var(--tpl-border);
+  color: var(--tpl-text-muted);
+}
+.hu-section-head .pc_more:hover {
+  border-color: var(--tpl-accent);
+  color: var(--tpl-accent);
+  background: var(--tpl-accent-soft);
+}
+.home-refresh-btn {
+  background: transparent;
+}
+
+/* 搜索按钮升级为页面唯一主按钮 */
+.head_search_capsule_submit {
+  background: var(--tpl-accent);
+  color: var(--tpl-accent-contrast);
+}
+
+/* 影院金：排行榜评分数字（白底 5.9:1 / 暗底 10.9:1） */
+.ranklist_txt .pannel_head .text_muted {
+  color: var(--tpl-accent-warm);
+  font-weight: 600;
+}
