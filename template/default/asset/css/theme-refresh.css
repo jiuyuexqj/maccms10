@@ -1,0 +1,88 @@
+/* ============================================================
+   theme-refresh.css — 视觉统一覆盖层（2026-09 改版）
+   ------------------------------------------------------------
+   目标：在不改动模板 HTML 结构的前提下，收束"三代设计系统叠加"
+   造成的视觉不一致。本文件在文档尾部（foot.html）加载，
+   级联顺序在所有页面样式之后，因此不需要 !important 即可生效
+   （如与旧规则冲突必须用更高优先级选择器，禁止追加 !important）。
+
+   覆盖范围（与 public-head-main.css 的 token 块配合）：
+   1. 卡片副标题统一为弱化色（原暗色下被点亮为主题绿，过噪）
+   2. 键盘可达性：focus-visible 焦点环
+   3. 文本选区配色
+   4. 暗色滚动条
+   5. 遗留字体残留兜底（宋体 → 继承全局字体栈）
+   ============================================================ */
+
+/* 1) 卡片副标题：两套主题统一为次级文本色，
+      主题绿只保留给交互态（hover/active/链接） */
+.vodlist_item .vodlist_sub,
+.vodlist_sub,
+.topiclist_blurb {
+  color: var(--tpl-text-muted);
+}
+.bstem .vodlist_item .vodlist_sub,
+.bstem .vodlist_sub {
+  color: var(--tpl-text-muted);
+}
+
+/* 2) 键盘焦点环：可交互元素统一可见焦点 */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--tpl-accent);
+  outline-offset: 2px;
+  border-radius: var(--tpl-radius-sm);
+}
+
+/* 3) 文本选区跟随主题 */
+::selection {
+  background: var(--tpl-accent-muted);
+  color: var(--tpl-text-strong);
+}
+
+/* 4) 暗色滚动条（Webkit） */
+.bstem ::-webkit-scrollbar,
+body.bstem::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.bstem ::-webkit-scrollbar-thumb,
+body.bstem::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, .14);
+  border-radius: 8px;
+}
+.bstem ::-webkit-scrollbar-thumb:hover,
+body.bstem::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, .22);
+}
+.bstem ::-webkit-scrollbar-track,
+body.bstem::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 5) 遗留宋体/独立字体声明兜底：未走到 token 的漏网声明统一继承 */
+[style*="simsun"],
+[style*="SimSun"] {
+  font-family: var(--tpl-font-family);
+}
+
+/* 6) 明暗两套主题下的分隔线统一（原 dotted 浅线在暗色下过亮） */
+.latest-tab-box .txt-list li {
+  border-bottom: 1px dotted var(--tpl-border-soft);
+}
+
+/* 7) prefers-reduced-motion：弱化动效（与既有 6 处实现保持一致策略） */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
